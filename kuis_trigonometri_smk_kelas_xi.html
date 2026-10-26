@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interactive Trigonometri SMK Kelas XI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Teacher Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+        }
+        .badge-easy { background-color: #10b981; color: white; }
+        .badge-medium { background-color: #f59e0b; color: white; }
+        .badge-hard { background-color: #ef4444; color: white; }
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.95em;
+            padding: 0 6px;
+            font-weight: 600;
+        }
+        .frac .top {
+            border-bottom: 2px solid #818cf8;
+            padding-bottom: 2px;
+            color: #38bdf8;
+        }
+        .frac .bottom {
+            padding-top: 2px;
+            color: #f43f5e;
+        }
+        .math-symbol {
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 flex flex-col justify-between items-center min-h-screen">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full max-w-5xl flex justify-between items-center mb-6 px-4 py-3 glass-card rounded-2xl">
+        <div class="flex items-center space-x-3">
+            <div class="p-2 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-ruler-combined text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight text-indigo-300">TrigoMaster SMK</h1>
+                <p class="text-xs text-slate-400">Media Kuis Visual Trigonometri (XI Kuliner & XI SIJA)</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="nav-student-btn" onclick="switchMode('student')" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md">
+                <i class="fa-solid fa-user-graduate mr-1.5"></i> Mode Siswa
+            </button>
+            <button id="nav-teacher-btn" onclick="openTeacherAuthModal()" class="px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-user-tie mr-1.5"></i> Mode Guru
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-5xl flex-1 flex flex-col justify-center items-center">
+
+        <!-- ==================== MODE SISWA ==================== -->
+        <section id="student-section" class="w-full space-y-6">
+
+            <!-- Welcome / Registration Box -->
+            <div id="student-welcome-card" class="glass-card p-6 md:p-8 rounded-3xl text-center max-w-2xl mx-auto border border-indigo-500/20">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-3xl shadow-inner border border-indigo-500/30">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 text-white">Kuis Interaktif Trigonometri SMK</h2>
+                <p class="text-slate-300 text-sm mb-6 leading-relaxed">Uji pemahaman visual trigonometri dari konversi sudut, perbandingan sisi, hingga aplikasi terapan bidang <strong>XI Kuliner</strong> &amp; <strong>XI SIJA</strong> (10 Soal Bertingkat - Durasi 100 Menit).</p>
+
+                <div id="already-submitted-msg" class="hidden p-4 mb-4 bg-amber-500/20 border border-amber-500/50 rounded-2xl text-amber-200 text-sm">
+                    <i class="fa-solid fa-triangle-exclamation mr-1.5 text-lg"></i>
+                    <strong>Perhatian:</strong> Anda sudah mengerjakan kuis ini sebelumnya. Setiap siswa hanya diperbolehkan mengerjakan 1 kali.
+                </div>
+
+                <form id="student-start-form" onsubmit="startQuiz(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Lengkap Siswa</label>
+                        <input type="text" id="student-name" required placeholder="Contoh: Ahmad Rizky" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Kelas &amp; Rombel</label>
+                            <select id="student-class" required class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                <option value="">Pilih Kelas</option>
+                                <option value="XI Kuliner">XI Kuliner</option>
+                                <option value="XI SIJA">XI SIJA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nomor Absen</label>
+                            <input type="number" id="student-absent" required min="1" max="50" placeholder="Contoh: 05" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <button type="submit" id="start-btn" class="w-full py-3.5 mt-2 rounded-xl btn-gradient font-bold text-white text-center flex justify-center items-center gap-2 shadow-lg">
+                        <span>Mulai Kerjakan Kuis (100 Menit)</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Quiz Box -->
+            <div id="quiz-card" class="hidden glass-card p-6 rounded-3xl max-w-3xl mx-auto space-y-6">
+                <!-- Header Stats -->
+                <div class="flex justify-between items-center border-b border-slate-700/80 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span id="level-badge" class="px-3 py-1 rounded-full text-xs font-bold badge-easy shadow">Tingkat 1: Sangat Mudah</span>
+                        <span id="question-tracker" class="text-xs text-slate-300 font-semibold">Soal 1 dari 10</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-slate-900/80 px-3.5 py-1.5 rounded-xl border border-slate-700">
+                        <i class="fa-solid fa-clock text-amber-400"></i>
+                        <span id="timer-display" class="font-mono text-sm font-bold text-slate-200">100:00</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Visual Canvas/Illustration -->
+                <div class="w-full bg-slate-950/90 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-800 shadow-inner min-h-[240px]">
+                    <canvas id="trigo-canvas" width="480" height="230" class="max-w-full h-auto"></canvas>
+                    <div class="mt-2 flex items-center justify-center gap-2">
+                        <span class="inline-block w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+                        <p id="diagram-caption" class="text-xs font-semibold text-indigo-300 text-center">Sudut/sisi yang dicari ditandai dengan warna kontras &amp; garis putus-putus</p>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                    <h3 id="question-text" class="text-base md:text-lg font-semibold text-slate-100 leading-relaxed">
+                        Pertanyaan kuis akan dimuat di sini...
+                    </h3>
+                </div>
+
+                <!-- Answer Choices -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <!-- Option buttons will be rendered dynamically -->
+                </div>
+
+                <!-- Action Footer -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                    <button onclick="confirmResetQuiz()" class="text-xs text-slate-400 hover:text-rose-400 transition flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Keluar Kuis
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-2.5 rounded-xl bg-slate-800 text-slate-500 font-semibold text-sm transition cursor-not-allowed">
+                        Soal Berikutnya <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Result Box -->
+            <div id="result-card" class="hidden glass-card p-6 md:p-8 rounded-3xl text-center max-w-xl mx-auto space-y-6">
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white text-4xl shadow-xl">
+                    <i id="result-icon" class="fa-solid fa-trophy"></i>
+                </div>
+
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold">Hasil Akhir Kuis</span>
+                    <h2 id="result-score" class="text-6xl font-black text-white mt-1">100</h2>
+                    <p id="result-feedback" class="text-slate-300 text-sm mt-3">Luar biasa! Pemahaman trigonometri Anda sangat matang.</p>
+                </div>
+
+                <!-- Detail Score Breakdown -->
+                <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                    <div>
+                        <span class="text-slate-400 block mb-1">Jawaban Benar</span>
+                        <span id="correct-count" class="font-bold text-emerald-400 text-lg">0</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-1">Jawaban Salah</span>
+                        <span id="wrong-count" class="font-bold text-rose-400 text-lg">0</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-1">Waktu Tempuh</span>
+                        <span id="time-spent" class="font-bold text-indigo-400 text-lg">00:00</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-indigo-950/50 border border-indigo-800/50 rounded-2xl text-left text-xs space-y-2">
+                    <p class="font-semibold text-indigo-300"><i class="fa-solid fa-circle-info mr-1"></i> Catatan Siswa:</p>
+                    <p id="teacher-note-text" class="text-slate-300">Terima kasih telah menyelesaikan kuis ini. Nilai Anda telah otomatis tersimpan dan terhubung (*ngelink*) langsung ke **Rekap Nilai Guru**.</p>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="openTeacherAuthModal()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Buka Rekapitulasi Nilai Kelas (Mode Guru)
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ==================== MODE GURU ==================== -->
+        <section id="teacher-section" class="hidden w-full space-y-6">
+
+            <!-- Teacher Header -->
+            <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-indigo-500/20">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-indigo-500/20 text-indigo-300 text-xs px-3 py-1 rounded-full font-semibold border border-indigo-500/30">Panel Pendidik</span>
+                        <span class="text-xs text-slate-400">Terhubung Langsung dengan Kuis Siswa</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mt-1">Dashboard Rekapitulasi Nilai Trigonometri</h2>
+                    <p class="text-xs text-slate-400">Rekapitulasi otomatis pengerjaan kuis siswa kelas XI Kuliner &amp; XI SIJA secara real-time.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportToCSV()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2 shadow">
+                        <i class="fa-solid fa-file-excel"></i> Ekspor CSV / Excel
+                    </button>
+                    <button onclick="confirmClearData()" class="px-4 py-2.5 bg-rose-600/80 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                        <i class="fa-solid fa-trash"></i> Reset All Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Class Statistics Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3">
+                    <div class="p-3 bg-indigo-500/20 text-indigo-400 rounded-xl text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Total Siswa</p>
+                        <h4 id="stat-total-students" class="text-xl font-bold text-white">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3">
+                    <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl text-xl">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Rata-Rata Nilai</p>
+                        <h4 id="stat-avg-score" class="text-xl font-bold text-white">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3">
+                    <div class="p-3 bg-amber-500/20 text-amber-400 rounded-xl text-xl">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Nilai Tertinggi</p>
+                        <h4 id="stat-max-score" class="text-xl font-bold text-white">0</h4>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl flex items-center space-x-3">
+                    <div class="p-3 bg-sky-500/20 text-sky-400 rounded-xl text-xl">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Tuntas (≥70)</p>
+                        <h4 id="stat-pass-rate" class="text-xl font-bold text-white">0%</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Analytics & Student Table -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Student Recap Table -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-3xl space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <h3 class="font-bold text-slate-200 text-sm md:text-base"><i class="fa-solid fa-list-check text-indigo-400 mr-2"></i>Daftar Pengerjaan Kuis Siswa</h3>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <select id="filter-class" onchange="renderTeacherTable()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none">
+                                <option value="">Semua Kelas</option>
+                                <option value="XI Kuliner">XI Kuliner</option>
+                                <option value="XI SIJA">XI SIJA</option>
+                            </select>
+                            <input type="text" id="search-student" oninput="renderTeacherTable()" placeholder="Cari nama..." class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none w-full sm:w-36">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900/80 uppercase text-slate-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Siswa</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Absen</th>
+                                    <th class="p-3">Nilai</th>
+                                    <th class="p-3">Durasi</th>
+                                    <th class="p-3">Waktu Selesai</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body" class="divide-y divide-slate-800">
+                                <!-- Table rows injected dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Visual Chart & Material Summary -->
+                <div class="glass-card p-6 rounded-3xl space-y-6">
+                    <div>
+                        <h3 class="font-bold text-slate-200 text-sm mb-3"><i class="fa-solid fa-pie-chart text-indigo-400 mr-2"></i>Persentase Ketuntasan Kelas</h3>
+                        <div class="w-full h-48 flex items-center justify-center">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-4 space-y-2">
+                        <h4 class="font-semibold text-xs text-slate-300">Siklus Tingkat Kesulitan Soal:</h4>
+                        <ul class="text-xs text-slate-400 space-y-2">
+                            <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold badge-easy shrink-0">Mudah</span> <span>Konversi Derajat &amp; Radian (Soal 1-2)</span></li>
+                            <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold badge-medium shrink-0">Sedang</span> <span>Sisi Segitiga &amp; Sudut Istimewa (Soal 3-6)</span></li>
+                            <li class="flex items-start gap-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold badge-hard shrink-0">Sulit</span> <span>Sudut Elevasi/Depresi &amp; Terapan (Soal 7-10)</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Teacher Auth Modal -->
+    <div id="teacher-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-card p-6 rounded-3xl max-w-sm w-full space-y-4 border border-indigo-500/30">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white"><i class="fa-solid fa-lock text-indigo-400 mr-2"></i>Mode Akses Guru</h3>
+                <button onclick="closeTeacherModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-300">Masukkan PIN Keamanan Guru untuk membuka papan rekapitulasi nilai.</p>
+            <div>
+                <input type="password" id="teacher-pin" maxlength="6" placeholder="• • • •" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-center text-xl font-mono text-white focus:outline-none focus:border-indigo-500 tracking-widest">
+                <p id="pin-error" class="text-xs text-rose-400 mt-2 hidden text-center font-medium">PIN Akses Salah!</p>
+            </div>
+            <button onclick="verifyTeacherPin()" class="w-full py-3 btn-gradient text-white font-bold rounded-xl text-sm shadow-lg">
+                Masuk Rekap Nilai Guru
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-indigo-600 text-white px-4 py-3 rounded-2xl shadow-2xl hidden flex items-center space-x-2 z-50 text-xs font-semibold">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
+        <span id="toast-msg">Notifikasi</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl text-center text-xs text-slate-500 py-4 mt-6">
+        <p>© 2026 Media Pembelajaran Kuis Trigonometri Interaktif • XI Kuliner &amp; XI SIJA</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // ==================== APP STATE & QUESTION BANK ====================
+        const TEACHER_PIN_SECRET = "3403";
+        const TOTAL_QUIZ_TIME_SECONDS = 100 * 60; // 100 minutes
+        let currentMode = 'student';
+        let currentQuestionIndex = 0;
+        let selectedOption = null;
+        let score = 0;
+        let timerInterval = null;
+        let timeRemaining = TOTAL_QUIZ_TIME_SECONDS;
+        let secondsElapsed = 0;
+        let currentStudent = null;
+        let myChartInstance = null;
+
+        // Structured 10-Question Bank with explicit clear fraction rendering & visual highlighted target angle diagrams
+        const questionBank = [
+            {
+                id: 1,
+                level: "Mudah - Konversi Derajat ke Radian",
+                levelClass: "badge-easy",
+                question: "Perhatikan diagram rotasi lingkaran sudut di bawah ini! Sudut yang dicari adalah α = 60°. Berapakah nilai sudut α tersebut jika dinyatakan dalam bentuk radian (rad)?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">1</span><span class="bottom">6</span></span> π rad &nbsp;(satu per enam pi rad)' },
+                    { id: "B", html: '<span class="frac"><span class="top">1</span><span class="bottom">4</span></span> π rad &nbsp;(satu per empat pi rad)' },
+                    { id: "C", html: '<span class="frac"><span class="top">1</span><span class="bottom">3</span></span> π rad &nbsp;(satu per tiga pi rad)', correct: true },
+                    { id: "D", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> π rad &nbsp;(satu per dua pi rad)' }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Circle setup
+                    ctx.strokeStyle = "#475569";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 75, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Baseline (0 deg)
+                    ctx.strokeStyle = "#94a3b8";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(240, 115);
+                    ctx.lineTo(335, 115);
+                    ctx.stroke();
+
+                    // Rotated ray (60 deg -> -Math.PI/3)
+                    const angle = -Math.PI / 3;
+                    const targetX = 240 + 75 * Math.cos(angle);
+                    const targetY = 115 + 75 * Math.sin(angle);
+
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(240, 115);
+                    ctx.lineTo(targetX, targetY);
+                    ctx.stroke();
+
+                    // Highlight arc angle
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 30, 0, angle, true);
+                    ctx.stroke();
+
+                    // Target Text Marker
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 15px Poppins";
+                    ctx.fillText("Sudut α = 60° (Dicari ?)", 270, 95);
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Rumus: Radian = 60° × ( π / 180° )", 140, 215);
+                }
+            },
+            {
+                id: 2,
+                level: "Mudah - Konversi Radian ke Derajat",
+                levelClass: "badge-easy",
+                question: "Seorang siswa XI Kuliner memotong adonan pizza berbentuk lingkaran dengan sudut α = 3/4 π rad (tiga per empat pi rad). Berapakah besar sudut potongan α tersebut dalam satuan derajat (°)?",
+                options: [
+                    { id: "A", html: "120° &nbsp;(seratus dua puluh derajat)" },
+                    { id: "B", html: "135° &nbsp;(seratus tiga puluh lima derajat)", correct: true },
+                    { id: "C", html: "150° &nbsp;(seratus lima puluh derajat)" },
+                    { id: "D", html: "225° &nbsp;(dua ratus dua puluh lima derajat)" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Pizza Base
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 70, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.fill();
+
+                    // Sector Slice (3/4 pi rad = 135 deg = -135 deg in canvas)
+                    const endAngle = -0.75 * Math.PI;
+                    ctx.fillStyle = "rgba(244, 63, 94, 0.4)";
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.beginPath();
+                    ctx.moveTo(240, 115);
+                    ctx.arc(240, 115, 70, 0, endAngle, true);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Highlight arc
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 35, 0, endAngle, true);
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("α = 3/4 π rad (Berapa ° ?)", 260, 60);
+
+                    ctx.fillStyle = "#cbd5e1";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Rumus: Derajat = ( 3/4 π ) × ( 180° / π )", 125, 215);
+                }
+            },
+            {
+                id: 3,
+                level: "Sedang - Perbandingan Sisi Segitiga (Sinus)",
+                levelClass: "badge-medium",
+                question: "Perhatikan segitiga siku-siku ABC di bawah ini! Sisi depan dari sudut θ adalah 3 cm, sisi samping adalah 4 cm, dan sisi miring adalah 5 cm. Berapakah nilai perbandingan sin(θ)?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">3</span><span class="bottom">5</span></span> &nbsp;(tiga per lima)', correct: true },
+                    { id: "B", html: '<span class="frac"><span class="top">4</span><span class="bottom">5</span></span> &nbsp;(empat per lima)' },
+                    { id: "C", html: '<span class="frac"><span class="top">3</span><span class="bottom">4</span></span> &nbsp;(tiga per empat)' },
+                    { id: "D", html: '<span class="frac"><span class="top">4</span><span class="bottom">3</span></span> &nbsp;(empat per tiga)' }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Right Triangle
+                    ctx.strokeStyle = "#818cf8";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(130, 175);
+                    ctx.lineTo(350, 175); // Samping = 4
+                    ctx.lineTo(350, 45);  // Depan = 3
+                    ctx.closePath();       // Miring = 5
+                    ctx.stroke();
+
+                    // Right angle symbol
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(335, 160, 15, 15);
+
+                    // Angle theta arc
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(130, 175, 35, -Math.atan(3/4), 0);
+                    ctx.stroke();
+
+                    // Labels
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 15px Poppins";
+                    ctx.fillText("Sudut θ", 175, 165);
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("Depan = 3 cm", 360, 115);
+                    ctx.fillText("Samping = 4 cm", 205, 195);
+                    ctx.fillText("Miring = 5 cm", 210, 100);
+
+                    ctx.fillStyle = "#a855f7";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Definisi: sin(θ) = Depan / Miring", 150, 25);
+                }
+            },
+            {
+                id: 4,
+                level: "Sedang - Perbandingan Cosinus (Samping/Miring)",
+                levelClass: "badge-medium",
+                question: "Pada rancangan panel jaringan XI SIJA, terdapat bentuk segitiga siku-siku dengan sisi samping 6 cm dan sisi miring 10 cm. Berapakah nilai perbandingan cos(θ)?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">3</span><span class="bottom">5</span></span> &nbsp;(tiga per lima)', correct: true },
+                    { id: "B", html: '<span class="frac"><span class="top">4</span><span class="bottom">5</span></span> &nbsp;(empat per lima)' },
+                    { id: "C", html: '<span class="frac"><span class="top">3</span><span class="bottom">4</span></span> &nbsp;(tiga per empat)' },
+                    { id: "D", html: '<span class="frac"><span class="top">5</span><span class="bottom">3</span></span> &nbsp;(lima per tiga)' }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Triangle
+                    ctx.strokeStyle = "#10b981";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(120, 175);
+                    ctx.lineTo(360, 175);
+                    ctx.lineTo(360, 35);
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    // Right angle
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(345, 160, 15, 15);
+
+                    // Angle Arc
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(120, 175, 40, -Math.atan(140/240), 0);
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("Sudut θ (Dicari cos-nya)", 170, 165);
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("Samping = 6 cm", 205, 195);
+                    ctx.fillText("Miring = 10 cm", 210, 95);
+
+                    ctx.fillStyle = "#34d399";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Definisi: cos(θ) = Samping / Miring = 6 / 10", 125, 20);
+                }
+            },
+            {
+                id: 5,
+                level: "Sedang - Nilai Sudut Istimewa Dasar",
+                levelClass: "badge-medium",
+                question: "Dalam seni susunan hidangan (plating) Kuliner, digunakan acuan sudut istimewa. Berapakah hasil penjumlahan nilai trigonometri dari: sin(30°) + cos(60°)?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> &nbsp;(satu per dua)' },
+                    { id: "B", html: "1 &nbsp;(satu utuh)", correct: true },
+                    { id: "C", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> √3 &nbsp;(setengah akar tiga)' },
+                    { id: "D", html: "√3 &nbsp;(akar tiga)" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Table Unit Circle Helper
+                    ctx.strokeStyle = "#a855f7";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 70, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Rays for 30 deg and 60 deg
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.beginPath();
+                    ctx.moveTo(240, 115);
+                    ctx.lineTo(240 + 70 * Math.cos(-Math.PI/6), 115 + 70 * Math.sin(-Math.PI/6));
+                    ctx.stroke();
+
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.beginPath();
+                    ctx.moveTo(240, 115);
+                    ctx.lineTo(240 + 70 * Math.cos(-Math.PI/3), 115 + 70 * Math.sin(-Math.PI/3));
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "bold 13px Poppins";
+                    ctx.fillText("sin(30°) = 1 / 2", 110, 70);
+
+                    ctx.fillStyle = "#fb7185";
+                    ctx.font = "bold 13px Poppins";
+                    ctx.fillText("cos(60°) = 1 / 2", 290, 70);
+
+                    ctx.fillStyle = "#a7f3d0";
+                    ctx.font = "bold 15px Poppins";
+                    ctx.fillText("Hitung: ( 1/2 ) + ( 1/2 ) = ?", 145, 210);
+                }
+            },
+            {
+                id: 6,
+                level: "Sedang - Operasi Perkalian Sudut Istimewa",
+                levelClass: "badge-medium",
+                question: "Berapakah hasil perkalian nilai sudut istimewa berikut: tan(45°) × cos(30°)?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> &nbsp;(satu per dua)' },
+                    { id: "B", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> √2 &nbsp;(setengah akar dua)' },
+                    { id: "C", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> √3 &nbsp;(setengah akar tiga)', correct: true },
+                    { id: "D", html: "1 &nbsp;(satu utuh)" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Box container for standard values
+                    ctx.strokeStyle = "#6366f1";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(100, 45, 280, 130);
+
+                    ctx.fillStyle = "#c084fc";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("Tabel Nilai Sudut Istimewa:", 135, 75);
+
+                    ctx.fillStyle = "#f1f5f9";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("• tan(45°) = 1", 140, 105);
+                    ctx.fillText("• cos(30°) = 1/2 √3", 140, 135);
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("Hasil Perkalian: 1 × ( 1/2 √3 ) = ?", 110, 210);
+                }
+            },
+            {
+                id: 7,
+                level: "Sulit - Sudut Elevasi Sederhana",
+                levelClass: "badge-hard",
+                question: "Seorang siswa XI SIJA mengamati ujung atas rak server dengan sudut elevasi α = 45°. Jika jarak mendatar siswa ke rak server adalah 4 meter, berapakah tinggi rak server (h) tersebut?",
+                options: [
+                    { id: "A", html: "2 meter" },
+                    { id: "B", html: "4 meter", correct: true },
+                    { id: "C", html: "4√2 meter &nbsp;(empat akar dua meter)" },
+                    { id: "D", html: "8 meter" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Ground line
+                    ctx.strokeStyle = "#64748b";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(60, 180);
+                    ctx.lineTo(420, 180);
+                    ctx.stroke();
+
+                    // Triangle line of sight
+                    ctx.strokeStyle = "#38bdf8";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(100, 180); // Observer
+                    ctx.lineTo(340, 180); // Tower base
+                    ctx.lineTo(340, 50);  // Tower top
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    // Angle Arc (45 deg)
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(100, 180, 40, -Math.PI/4, 0);
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 13px Poppins";
+                    ctx.fillText("Elevasi α = 45°", 145, 170);
+
+                    ctx.fillStyle = "#f43f5e";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("Tinggi h = ? (Dicari)", 350, 115);
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("Jarak = 4 meter", 190, 200);
+
+                    ctx.fillStyle = "#cbd5e1";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Rumus: tan(45°) = Tinggi (h) / Jarak", 130, 25);
+                }
+            },
+            {
+                id: 8,
+                level: "Sulit - Sudut Depresi Terapan Kuliner",
+                levelClass: "badge-hard",
+                question: "Seorang Chef di meja dapur setinggi 120 cm melihat tempat bumbu di lantai dengan sudut depresi α = 30°. Berapakah jarak mendatar (x) dari alas meja ke tempat bumbu? (Gunakan tan(30°) = 1 / √3)",
+                options: [
+                    { id: "A", html: "120 cm" },
+                    { id: "B", html: "120√3 cm &nbsp;(seratus dua puluh akar tiga cm)", correct: true },
+                    { id: "C", html: "60√3 cm &nbsp;(enam puluh akar tiga cm)" },
+                    { id: "D", html: "240 cm" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Horizontal sight line (Dashed)
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(120, 50);
+                    ctx.lineTo(360, 50);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    // Triangle
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(120, 50);  // Eye
+                    ctx.lineTo(360, 180); // Object
+                    ctx.lineTo(120, 180); // Table Base
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    // Angle Arc
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(120, 50, 35, 0, Math.atan(130/240));
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 13px Poppins";
+                    ctx.fillText("Sudut Depresi α = 30°", 160, 40);
+
+                    ctx.fillStyle = "#38bdf8";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("Tinggi = 120 cm", 10, 115);
+                    ctx.fillText("Jarak Mendatar x = ? (Dicari)", 170, 200);
+
+                    ctx.fillStyle = "#fda4af";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Rumus: tan(30°) = Tinggi / Jarak (x)", 135, 15);
+                }
+            },
+            {
+                id: 9,
+                level: "Sulit - Terapan SIJA (Ketinggian Tower Wi-Fi)",
+                levelClass: "badge-hard",
+                question: "Siswa SIJA mengukur tinggi tower antena Point-to-Point. Dari jarak mendatar 20 meter, sudut elevasi ke puncak tower adalah 45°. Jika tinggi pengamat (tripod) adalah 1,5 meter, berapa tinggi total tower tersebut?",
+                options: [
+                    { id: "A", html: "20,0 meter" },
+                    { id: "B", html: "21,5 meter &nbsp;(dua puluh satu koma lima meter)", correct: true },
+                    { id: "C", html: "23,5 meter" },
+                    { id: "D", html: "25,0 meter" }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Ground
+                    ctx.strokeStyle = "#475569";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(60, 190); ctx.lineTo(420, 190);
+                    ctx.stroke();
+
+                    // Tripod observer height (1.5m)
+                    ctx.strokeStyle = "#a855f7";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(100, 190); ctx.lineTo(100, 150);
+                    ctx.stroke();
+
+                    // Sight Triangle
+                    ctx.strokeStyle = "#10b981";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(100, 150);
+                    ctx.lineTo(340, 150);
+                    ctx.lineTo(340, 30); // Tower top
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    // Tower lower base extension
+                    ctx.strokeStyle = "#64748b";
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(340, 150); ctx.lineTo(340, 190);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = "#a855f7";
+                    ctx.font = "11px Poppins";
+                    ctx.fillText("Pengamat 1,5m", 20, 170);
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "bold 13px Poppins";
+                    ctx.fillText("Elevasi 45°", 145, 140);
+
+                    ctx.fillStyle = "#34d399";
+                    ctx.font = "13px Poppins";
+                    ctx.fillText("Jarak = 20 meter", 180, 170);
+                    ctx.fillText("Tinggi Total = (20 × tan(45°)) + 1,5 = ?", 110, 215);
+                }
+            },
+            {
+                id: 10,
+                level: "Sulit - Terapan Kuliner (Sudut Potong Tart)",
+                levelClass: "badge-hard",
+                question: "Sebuah kue tart lingkaran dipotong menjadi 8 bagian yang sama besar. Berapakah besar sudut pusat dari masing-masing potongan kue tersebut jika dinyatakan dalam satuan radian?",
+                options: [
+                    { id: "A", html: '<span class="frac"><span class="top">1</span><span class="bottom">4</span></span> π rad &nbsp;(satu per empat pi rad)', correct: true },
+                    { id: "B", html: '<span class="frac"><span class="top">1</span><span class="bottom">2</span></span> π rad &nbsp;(satu per dua pi rad)' },
+                    { id: "C", html: '<span class="frac"><span class="top">1</span><span class="bottom">8</span></span> π rad &nbsp;(satu per delapan pi rad)' },
+                    { id: "D", html: '<span class="frac"><span class="top">1</span><span class="bottom">3</span></span> π rad &nbsp;(satu per tiga pi rad)' }
+                ],
+                drawDiagram: (ctx) => {
+                    ctx.clearRect(0, 0, 480, 230);
+                    // Tart Circle
+                    ctx.strokeStyle = "#f59e0b";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 70, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // 8 Slices lines
+                    for (let i = 0; i < 8; i++) {
+                        let a = (i * Math.PI) / 4;
+                        ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(240, 115);
+                        ctx.lineTo(240 + 70 * Math.cos(a), 115 + 70 * Math.sin(a));
+                        ctx.stroke();
+                    }
+
+                    // Highlight one slice arc (45 deg)
+                    ctx.strokeStyle = "#f43f5e";
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(240, 115, 35, 0, Math.PI / 4);
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#fb7185";
+                    ctx.font = "bold 14px Poppins";
+                    ctx.fillText("Sudut 1 Potongan (45°) = ? rad", 130, 25);
+
+                    ctx.fillStyle = "#fbbf24";
+                    ctx.font = "12px Poppins";
+                    ctx.fillText("Langkah: 360° / 8 = 45°  ➜  Ubah 45° ke Radian", 115, 215);
+                }
+            }
+        ];
+
+        // Local Storage Helpers
+        function getStoredResults() {
+            const data = localStorage.getItem('trigo_smk_quiz_results');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveResult(record) {
+            const current = getStoredResults();
+            current.push(record);
+            localStorage.setItem('trigo_smk_quiz_results', JSON.stringify(current));
+        }
+
+        function checkIfSubmitted() {
+            const hasSubmitted = localStorage.getItem('trigo_smk_submitted');
+            if (hasSubmitted) {
+                document.getElementById('already-submitted-msg').classList.remove('hidden');
+                document.getElementById('start-btn').disabled = true;
+                document.getElementById('start-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Mode Switching
+        function switchMode(mode) {
+            currentMode = mode;
+            const studentNav = document.getElementById('nav-student-btn');
+            const teacherNav = document.getElementById('nav-teacher-btn');
+            const studentSec = document.getElementById('student-section');
+            const teacherSec = document.getElementById('teacher-section');
+
+            if (mode === 'student') {
+                studentNav.className = "px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md";
+                teacherNav.className = "px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700";
+                studentSec.classList.remove('hidden');
+                teacherSec.classList.add('hidden');
+                checkIfSubmitted();
+            } else {
+                studentNav.className = "px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-slate-800 text-slate-300 hover:bg-slate-700";
+                teacherNav.className = "px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold transition bg-indigo-600 text-white shadow-md";
+                studentSec.classList.add('hidden');
+                teacherSec.classList.remove('hidden');
+                renderTeacherDashboard();
+            }
+        }
+
+        // Student Mode Functions
+        function startQuiz(event) {
+            event.preventDefault();
+
+            if (localStorage.getItem('trigo_smk_submitted')) {
+                showToast("Setiap siswa hanya dapat mengerjakan kuis 1 kali!", "fa-triangle-exclamation");
+                return;
+            }
+
+            const name = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value;
+            const absent = document.getElementById('student-absent').value.trim();
+
+            if (!name || !studentClass || !absent) return;
+
+            currentStudent = { name, class: studentClass, absent };
+            currentQuestionIndex = 0;
+            score = 0;
+            secondsElapsed = 0;
+            timeRemaining = TOTAL_QUIZ_TIME_SECONDS;
+
+            document.getElementById('student-welcome-card').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                timeRemaining--;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showToast("Waktu kuis 100 menit telah habis!", "fa-clock");
+                    finishQuiz();
+                    return;
+                }
+
+                const mins = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+                const secs = (timeRemaining % 60).toString().padStart(2, '0');
+                const timerElem = document.getElementById('timer-display');
+                timerElem.innerText = `${mins}:${secs}`;
+
+                if (timeRemaining <= 300) {
+                    timerElem.classList.add('text-rose-400', 'animate-pulse');
+                } else {
+                    timerElem.classList.remove('text-rose-400', 'animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questionBank[currentQuestionIndex];
+            selectedOption = null;
+
+            document.getElementById('question-tracker').innerText = `Soal ${currentQuestionIndex + 1} dari ${questionBank.length}`;
+            const badge = document.getElementById('level-badge');
+            badge.innerText = `${q.level}`;
+            badge.className = `px-3 py-1 rounded-full text-xs font-bold ${q.levelClass}`;
+
+            document.getElementById('question-text').innerText = q.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => selectOption(opt, btn);
+                btn.className = "option-btn w-full p-4 bg-slate-900/90 hover:bg-slate-800/80 border border-slate-700/80 rounded-2xl text-left text-sm flex items-center justify-between transition group shadow-sm";
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-indigo-600 text-slate-300 group-hover:text-white flex items-center justify-center font-bold text-xs border border-slate-700 shrink-0">${opt.id}</span>
+                        <span class="text-slate-200 font-medium">${opt.html}</span>
+                    </div>
+                    <i class="fa-regular fa-circle check-icon text-slate-500 text-lg shrink-0"></i>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.className = "px-6 py-2.5 rounded-xl bg-slate-800 text-slate-500 font-semibold text-sm transition cursor-not-allowed";
+
+            const canvas = document.getElementById('trigo-canvas');
+            const ctx = canvas.getContext('2d');
+            q.drawDiagram(ctx);
+        }
+
+        function selectOption(option, btnElement) {
+            selectedOption = option;
+
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.className = "option-btn w-full p-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-left text-sm flex items-center justify-between transition group";
+                b.querySelector('.check-icon').className = "fa-regular fa-circle check-icon text-slate-500 text-lg shrink-0";
+            });
+
+            btnElement.className = "option-btn w-full p-4 bg-indigo-950/90 border-2 border-indigo-500 rounded-2xl text-left text-sm flex items-center justify-between transition group shadow-lg";
+            btnElement.querySelector('.check-icon').className = "fa-solid fa-circle-check check-icon text-indigo-400 text-lg shrink-0";
+
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.className = "px-6 py-2.5 rounded-xl btn-gradient text-white font-semibold text-sm transition shadow-lg";
+        }
+
+        function nextQuestion() {
+            if (!selectedOption) return;
+
+            if (selectedOption.correct) {
+                score += (100 / questionBank.length);
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questionBank.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+
+            const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+            const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+            const durationStr = `${mins}:${secs}`;
+
+            const correctNum = Math.round(score / (100 / questionBank.length));
+            const wrongNum = questionBank.length - correctNum;
+
+            const record = {
+                id: Date.now(),
+                name: currentStudent.name,
+                class: currentStudent.class,
+                absent: currentStudent.absent,
+                score: Math.round(score),
+                duration: durationStr,
+                date: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+            };
+
+            saveResult(record);
+            localStorage.setItem('trigo_smk_submitted', 'true');
+
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+
+            document.getElementById('result-score').innerText = Math.round(score);
+            document.getElementById('correct-count').innerText = correctNum;
+            document.getElementById('wrong-count').innerText = wrongNum;
+            document.getElementById('time-spent').innerText = durationStr;
+
+            const feedback = document.getElementById('result-feedback');
+            const icon = document.getElementById('result-icon');
+
+            if (score >= 70) {
+                feedback.innerText = "Sangat Baik! Anda tuntas menguasai materi trigonometri terapan SMK.";
+                icon.className = "fa-solid fa-trophy text-amber-300";
+            } else {
+                feedback.innerText = "Belum Tuntas (KKM 70). Pelajari kembali rasio trigonometri dan sudut istimewa.";
+                icon.className = "fa-solid fa-book-open text-rose-300";
+            }
+        }
+
+        function confirmResetQuiz() {
+            if (confirm("Apakah Anda yakin ingin keluar dari kuis? Kemajuan saat ini tidak akan tersimpan.")) {
+                clearInterval(timerInterval);
+                document.getElementById('quiz-card').classList.add('hidden');
+                document.getElementById('student-welcome-card').classList.remove('hidden');
+            }
+        }
+
+        // Teacher Mode Auth & Dashboard
+        function openTeacherAuthModal() {
+            document.getElementById('teacher-modal').classList.remove('hidden');
+            document.getElementById('teacher-pin').value = '';
+            document.getElementById('pin-error').classList.add('hidden');
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('teacher-modal').classList.add('hidden');
+        }
+
+        function verifyTeacherPin() {
+            const pinInput = document.getElementById('teacher-pin').value;
+            if (pinInput === TEACHER_PIN_SECRET) {
+                closeTeacherModal();
+                switchMode('teacher');
+                showToast("Berhasil masuk ke Mode Rekap Guru!", "fa-lock-open");
+            } else {
+                // Confidential PIN error: strictly hide correct pin value
+                document.getElementById('pin-error').innerText = "PIN Akses Salah!";
+                document.getElementById('pin-error').classList.remove('hidden');
+            }
+        }
+
+        function renderTeacherDashboard() {
+            const results = getStoredResults();
+
+            const totalStudents = results.length;
+            const avgScore = totalStudents > 0 
+                ? Math.round(results.reduce((acc, curr) => acc + curr.score, 0) / totalStudents) 
+                : 0;
+            const maxScore = totalStudents > 0 
+                ? Math.max(...results.map(r => r.score)) 
+                : 0;
+            const passedStudents = results.filter(r => r.score >= 70).length;
+            const passRate = totalStudents > 0 ? Math.round((passedStudents / totalStudents) * 100) : 0;
+
+            document.getElementById('stat-total-students').innerText = totalStudents;
+            document.getElementById('stat-avg-score').innerText = avgScore;
+            document.getElementById('stat-max-score').innerText = maxScore;
+            document.getElementById('stat-pass-rate').innerText = `${passRate}%`;
+
+            renderTeacherTable();
+            renderChart(passedStudents, totalStudents - passedStudents);
+        }
+
+        function renderTeacherTable() {
+            const results = getStoredResults();
+            const searchTerm = document.getElementById('search-student').value.toLowerCase();
+            const filterClass = document.getElementById('filter-class').value;
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = results.filter(r => {
+                const matchName = r.name.toLowerCase().includes(searchTerm);
+                const matchClass = filterClass === '' || r.class === filterClass;
+                return matchName && matchClass;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-500 italic">
+                            Belum ada pengerjaan kuis siswa yang terekam.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.reverse().forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition";
+                
+                const scoreColor = r.score >= 70 ? "text-emerald-400 font-bold" : "text-rose-400 font-bold";
+
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-200">${r.name}</td>
+                    <td class="p-3">${r.class}</td>
+                    <td class="p-3">${r.absent}</td>
+                    <td class="p-3 ${scoreColor}">${r.score}</td>
+                    <td class="p-3">${r.duration}</td>
+                    <td class="p-3 text-slate-400">${r.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderChart(passedCount, failedCount) {
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            
+            if (myChartInstance) {
+                myChartInstance.destroy();
+            }
+
+            myChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tuntas (≥70)', 'Belum Tuntas (<70)'],
+                    datasets: [{
+                        data: [passedCount, failedCount],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 11, family: 'Poppins' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportToCSV() {
+            const results = getStoredResults();
+            if (results.length === 0) {
+                showToast("Tidak ada data pengerjaan untuk diekspor!", "fa-circle-exclamation");
+                return;
+            }
+
+            let csv = "Nama Siswa,Kelas,No Absen,Nilai,Durasi,Tanggal Selesai\n";
+            results.forEach(r => {
+                csv += `"${r.name}","${r.class}","${r.absent}",${r.score},"${r.duration}","${r.date}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rekap_Nilai_Trigonometri_XI_Kuliner_SIJA_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function confirmClearData() {
+            if (confirm("PERHATIAN GURU: Apakah Anda yakin ingin menghapus SELURUH rekap data nilai dan mengizinkan siswa mengerjakan ulang?")) {
+                localStorage.removeItem('trigo_smk_quiz_results');
+                localStorage.removeItem('trigo_smk_submitted');
+                renderTeacherDashboard();
+                showToast("Seluruh data nilai berhasil dibersihkan!", "fa-trash");
+            }
+        }
+
+        function showToast(message, iconClass = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = message;
+            toastIcon.className = `fa-solid ${iconClass} text-base`;
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        window.onload = function() {
+            checkIfSubmitted();
+        }
+    </script>
+</body>
+</html>
